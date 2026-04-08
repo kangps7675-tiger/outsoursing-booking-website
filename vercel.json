@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/philsolution_landing_mockup.html"
+    }
+  ]
+}
