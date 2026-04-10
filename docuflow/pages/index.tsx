@@ -301,7 +301,7 @@ export default function Home() {
 
       <style jsx>{`
         .page{
-          max-width:1320px;
+          max-width:1080px;
           margin:0 auto;
           padding:24px 28px 96px;
           color:#0f172a;
