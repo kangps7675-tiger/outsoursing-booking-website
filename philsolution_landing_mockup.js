@@ -13,24 +13,37 @@ function openConsultForm() {
   window.open(GOOGLE_FORM_URL, '_blank');
 }
 
-async function loadConsultCount() {
+async function fetchConsultCount(query = '') {
+  const url = `${SUPABASE_URL}/rest/v1/consultations?select=id${query ? `&${query}` : ''}`;
+  const res = await fetch(url, {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Prefer': 'count=exact',
+      'Range': '0-0'
+    }
+  });
+  return res.headers.get('Content-Range')?.split('/')[1] ?? '0';
+}
+
+async function loadConsultStats() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/consultations?select=id&status=eq.완료`, {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer': 'count=exact',
-        'Range': '0-0'
-      }
-    });
-    const count = res.headers.get('Content-Range')?.split('/')[1] ?? '0';
-    const el = document.getElementById('completedCount');
-    if (el) el.textContent = `${count}건`;
+    const [completed, total, inProgress] = await Promise.all([
+      fetchConsultCount('status=eq.완료'),
+      fetchConsultCount(),
+      fetchConsultCount('status=eq.진행중')
+    ]);
+    const completedEl = document.getElementById('completedCount');
+    const requestEl = document.getElementById('requestCount');
+    const inProgressEl = document.getElementById('inProgressCount');
+    if (completedEl) completedEl.textContent = `${completed}건`;
+    if (requestEl) requestEl.textContent = `${total}건`;
+    if (inProgressEl) inProgressEl.textContent = `${inProgress}건`;
   } catch (_) {}
 }
 
-loadConsultCount();
+loadConsultStats();
 
 (() => {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
