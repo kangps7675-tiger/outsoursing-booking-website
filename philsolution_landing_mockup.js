@@ -23,16 +23,24 @@ async function fetchConsultCount(query = '') {
       'Range': '0-0'
     }
   });
+  if (!res.ok) throw new Error(`count query failed: ${res.status}`);
   return res.headers.get('Content-Range')?.split('/')[1] ?? '0';
 }
 
 async function loadConsultStats() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
+    let inProgressStrict = '0';
+    try {
+      inProgressStrict = await fetchConsultCount('status=eq.진행중&is_verified=is.true&started_at=not.is.null');
+    } catch (_) {
+      // Backward compatibility until DB columns are added.
+      inProgressStrict = await fetchConsultCount('status=eq.진행중');
+    }
     const [completed, total, inProgress] = await Promise.all([
       fetchConsultCount('status=eq.완료'),
       fetchConsultCount(),
-      fetchConsultCount('status=eq.진행중')
+      Promise.resolve(inProgressStrict)
     ]);
     const completedEl = document.getElementById('completedCount');
     const requestEl = document.getElementById('requestCount');

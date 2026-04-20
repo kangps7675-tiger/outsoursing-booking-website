@@ -286,47 +286,65 @@
     font-size: .82rem;
   }
 
-  /* 상태 버튼 */
-  .status-btn {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-family: inherit;
+  .table-guide {
+    margin-top: 8px;
     font-size: .78rem;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1.5px solid;
-    transition: opacity .15s, transform .1s;
-    white-space: nowrap;
-  }
-
-  .status-btn:hover { opacity: .8; }
-  .status-btn:active { transform: scale(.96); }
-
-  .status-btn[data-status="대기중"] {
-    background: rgba(140,134,120,.1);
-    border-color: var(--stone);
     color: var(--stone);
   }
 
-  .status-btn[data-status="진행중"] {
-    background: rgba(45,90,64,.1);
-    border-color: var(--mid-green);
+  .status-select {
+    width: 100%;
+    min-width: 94px;
+    padding: 6px 8px;
+    border: 1px solid rgba(26,58,42,.2);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: .8rem;
+    background: #fff;
+    color: var(--deep-green);
+  }
+
+  .verify-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78rem;
     color: var(--mid-green);
+    white-space: nowrap;
   }
 
-  .status-btn[data-status="완료"] {
-    background: rgba(74,140,92,.12);
-    border-color: var(--light-green);
-    color: var(--light-green);
+  .verify-check {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--light-green);
   }
 
-  .status-btn[data-status="취소"] {
-    background: rgba(192,57,43,.08);
-    border-color: #c0392b;
-    color: #c0392b;
+  .start-date-input {
+    width: 100%;
+    min-width: 118px;
+    padding: 6px 8px;
+    border: 1px solid rgba(26,58,42,.2);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: .8rem;
+    color: var(--deep-green);
+    background: #fff;
   }
 
-  .status-btn:disabled { cursor: not-allowed; opacity: .5; }
+  .save-btn {
+    padding: 6px 10px;
+    border: 1px solid rgba(26,58,42,.25);
+    border-radius: 6px;
+    background: var(--warm-white);
+    color: var(--mid-green);
+    font-family: inherit;
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .save-btn:hover { background: var(--cream); }
+  .save-btn:disabled { cursor: not-allowed; opacity: .5; }
 
   /* 로딩 / 빈 상태 */
   .table-empty {
@@ -344,7 +362,7 @@
     .admin-main { padding: 20px 16px; }
     .summary-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .table-wrap { overflow-x: auto; }
-    table { min-width: 640px; }
+    table { min-width: 980px; }
     .login-card { padding: 32px 24px; }
   }
 </style>
@@ -403,7 +421,10 @@
     <!-- 상담 목록 테이블 -->
     <div class="table-wrap">
       <div class="table-header">
-        <div class="table-title">상담 신청 목록</div>
+        <div>
+          <div class="table-title">상담 신청 목록</div>
+          <div class="table-guide">진행중 기준: 견적 합의 + 착수 시작(검증됨 체크 + 착수일 입력)</div>
+        </div>
         <button class="refresh-btn" id="refreshBtn">새로고침</button>
       </div>
       <div id="tableContainer">
@@ -441,11 +462,18 @@
       .replace(/'/g, '&#x27;');
   };
 
-  const STATUS_CYCLE = ['대기중', '진행중', '완료', '취소'];
+  const STATUS_OPTIONS = ['대기중', '진행중', '완료', '취소'];
+  let hasValidationColumns = true;
+  let shownValidationColumnWarning = false;
 
-  const nextStatus = (current) => {
-    const idx = STATUS_CYCLE.indexOf(current);
-    return STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  const formatDateInputValue = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   };
 
   // ─── 뷰 전환 ───
@@ -464,10 +492,25 @@
   const loadData = async () => {
     document.getElementById('tableContainer').innerHTML = '<div class="table-empty">로딩 중...</div>';
 
-    const { data, error } = await sb
+    let query = sb
       .from('consultations')
-      .select('id, created_at, name, contact, email, message, status')
+      .select(hasValidationColumns
+        ? 'id, created_at, name, contact, email, message, status, is_verified, started_at'
+        : 'id, created_at, name, contact, email, message, status')
       .order('id', { ascending: false });
+    let { data, error } = await query;
+
+    if (error && hasValidationColumns && /is_verified|started_at/i.test(error.message ?? '')) {
+      hasValidationColumns = false;
+      ({ data, error } = await sb
+        .from('consultations')
+        .select('id, created_at, name, contact, email, message, status')
+        .order('id', { ascending: false }));
+      if (!shownValidationColumnWarning) {
+        shownValidationColumnWarning = true;
+        alert('DB에 is_verified, started_at 컬럼이 아직 없어 검증 기능이 제한됩니다. 컬럼 추가 후 새로고침 해주세요.');
+      }
+    }
 
     if (error) {
       document.getElementById('tableContainer').innerHTML =
@@ -488,7 +531,13 @@
 
   const updateSummary = (data) => {
     const counts = { '대기중': 0, '진행중': 0, '완료': 0, '취소': 0 };
-    data.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+    data.forEach(r => {
+      if (r.status === '진행중' && hasValidationColumns) {
+        const strictInProgress = !!r.is_verified && !!r.started_at;
+        if (!strictInProgress) return;
+      }
+      if (counts[r.status] !== undefined) counts[r.status]++;
+    });
     Object.entries(counts).forEach(([status, n]) => {
       const el = document.getElementById(`cnt${status}`);
       if (el) el.textContent = n;
@@ -498,7 +547,12 @@
   const renderTable = (data) => {
     const rows = data.map(r => {
       const date = r.created_at ? new Date(r.created_at).toLocaleDateString('ko-KR') : '—';
-      const next = nextStatus(r.status ?? '대기중');
+      const status = r.status ?? '대기중';
+      const isVerified = hasValidationColumns ? !!r.is_verified : false;
+      const startedAt = hasValidationColumns ? formatDateInputValue(r.started_at) : '';
+      const statusOptions = STATUS_OPTIONS.map((opt) =>
+        `<option value="${escapeHtml(opt)}"${opt === status ? ' selected' : ''}>${escapeHtml(opt)}</option>`
+      ).join('');
       return `<tr>
         <td class="td-id">#${escapeHtml(String(r.id))}</td>
         <td class="td-date">${escapeHtml(date)}</td>
@@ -507,13 +561,21 @@
         <td>${escapeHtml(r.email ?? '—')}</td>
         <td class="td-msg" title="${escapeHtml(r.message ?? '')}">${escapeHtml(r.message ?? '—')}</td>
         <td>
-          <button
-            class="status-btn"
-            data-status="${escapeHtml(r.status ?? '대기중')}"
-            data-id="${escapeHtml(String(r.id))}"
-            data-next="${escapeHtml(next)}"
-            title="클릭하면 '${escapeHtml(next)}'로 변경"
-          >${escapeHtml(r.status ?? '대기중')}</button>
+          <select class="status-select" data-id="${escapeHtml(String(r.id))}">
+            ${statusOptions}
+          </select>
+        </td>
+        <td>
+          <label class="verify-wrap">
+            <input class="verify-check" type="checkbox" data-id="${escapeHtml(String(r.id))}" ${isVerified ? 'checked' : ''} ${hasValidationColumns ? '' : 'disabled'}>
+            검증됨
+          </label>
+        </td>
+        <td>
+          <input class="start-date-input" type="date" data-id="${escapeHtml(String(r.id))}" value="${escapeHtml(startedAt)}" ${hasValidationColumns ? '' : 'disabled'}>
+        </td>
+        <td>
+          <button class="save-btn" data-id="${escapeHtml(String(r.id))}">저장</button>
         </td>
       </tr>`;
     }).join('');
@@ -529,26 +591,49 @@
             <th>이메일</th>
             <th>문의 내용</th>
             <th>상태</th>
+            <th>검증</th>
+            <th>착수일</th>
+            <th>저장</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>`;
 
-    // 상태 버튼 이벤트 위임
+    // 행 저장 이벤트 위임
     document.getElementById('tableContainer').addEventListener('click', async (e) => {
-      const btn = e.target.closest('.status-btn');
+      const btn = e.target.closest('.save-btn');
       if (!btn) return;
       const id = btn.dataset.id;
-      const next = btn.dataset.next;
-      btn.disabled = true;
+      const row = btn.closest('tr');
+      const statusEl = row?.querySelector(`.status-select[data-id="${id}"]`);
+      const verifyEl = row?.querySelector(`.verify-check[data-id="${id}"]`);
+      const dateEl = row?.querySelector(`.start-date-input[data-id="${id}"]`);
+      const nextStatus = statusEl?.value ?? '대기중';
+      const nextVerified = hasValidationColumns ? !!verifyEl?.checked : false;
+      const nextStartedAt = hasValidationColumns ? (dateEl?.value || null) : null;
 
+      if (hasValidationColumns && nextStatus === '진행중') {
+        if (!nextVerified || !nextStartedAt) {
+          alert('진행중으로 저장하려면 "검증됨" 체크와 "착수일" 입력이 필요합니다.');
+          return;
+        }
+      }
+
+      const confirmMsg = hasValidationColumns
+        ? `상태를 "${nextStatus}"로 저장할까요?\n검증: ${nextVerified ? '예' : '아니오'} / 착수일: ${nextStartedAt ?? '미입력'}`
+        : `상태를 "${nextStatus}"로 저장할까요?`;
+      if (!confirm(confirmMsg)) return;
+      btn.disabled = true;
+      const payload = hasValidationColumns
+        ? { status: nextStatus, is_verified: nextVerified, started_at: nextStartedAt }
+        : { status: nextStatus };
       const { error } = await sb
         .from('consultations')
-        .update({ status: next })
+        .update(payload)
         .eq('id', id);
 
       if (error) {
-        alert(`상태 변경 실패: ${error.message}`);
+        alert(`저장 실패: ${error.message}`);
         btn.disabled = false;
       } else {
         await loadData();
