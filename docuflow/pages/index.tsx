@@ -146,7 +146,7 @@ export default function Home() {
             <a href="#process">서비스 과정</a>
             <a href="#pricing">요금제</a>
             <a href="#faq">FAQ</a>
-          </nav>
+      </nav>
           <div className="nav-actions">
             <a href="/login" className="btn ghost small">로그인</a>
             <a href="/signup" className="btn solid small">회원가입</a>
@@ -175,7 +175,7 @@ export default function Home() {
               <div><strong>99%</strong><span>출처 추적 커버리지</span></div>
               <div><strong>31개</strong><span>대학 템플릿</span></div>
             </div>
-          </div>
+              </div>
 
           <div className="hero-demo">
             <div className="demo-head">Live Preview · Ghost + Tab</div>
@@ -198,11 +198,11 @@ export default function Home() {
                   <span>Tab 수락</span>
                   <span>Ctrl+→ 확장</span>
                   <span>Ctrl+Enter 출처</span>
-                </div>
+              </div>
               </div>
             </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
         <section className="section" id="features">
           <div className="section-head">
@@ -213,8 +213,8 @@ export default function Home() {
             <article className="card pain-card" data-reveal="pain"><h3>시작이 어렵다</h3><p>첫 문장을 어떻게 열어야 할지 막히는 순간을 제안 문장으로 해결합니다.</p></article>
             <article className="card pain-card" data-reveal="pain"><h3>근거 연결이 어렵다</h3><p>주장 문장에 맞는 논문 근거와 페이지를 즉시 제안합니다.</p></article>
             <article className="card pain-card" data-reveal="pain"><h3>형식 때문에 감점</h3><p>인용 형식과 참고문헌 누락을 가드레일로 사전에 차단합니다.</p></article>
-          </div>
-        </section>
+        </div>
+      </section>
 
         <section className="section">
           <div className="section-head">
@@ -229,8 +229,8 @@ export default function Home() {
                 <p>{item.desc}</p>
               </article>
             ))}
-          </div>
-        </section>
+        </div>
+      </section>
 
         <section className="section" id="process">
           <div className="section-head">
@@ -262,8 +262,8 @@ export default function Home() {
                 <a href="/signup" className={`btn ${plan.featured ? 'solid' : 'ghost'}`}>시작하기</a>
               </article>
             ))}
-          </div>
-        </section>
+        </div>
+      </section>
 
         <section className="section" id="faq">
           <div className="section-head">
@@ -275,28 +275,28 @@ export default function Home() {
             <article className="card"><h3>출처까지 자동 정리되나요?</h3><p>네. 문장별 근거 연결과 참고문헌 형식 변환을 제공합니다.</p></article>
             <article className="card"><h3>학교별 형식을 맞출 수 있나요?</h3><p>과목/양식 가드레일로 서론-본론-결론 및 인용 규칙을 점검합니다.</p></article>
             <article className="card"><h3>로그인 후 바로 사용 가능한가요?</h3><p>네. 회원가입 후 즉시 개인 워크스페이스가 생성됩니다.</p></article>
-          </div>
-        </section>
+        </div>
+      </section>
 
         <section className="cta">
           <h2>이번 학기 리포트, 더 정확하게</h2>
           <p>Ghost 제안 확인 → Tab 수락 → 출처 자동 정리까지 한 번에.</p>
           <a href="/signup" className="btn solid">지금 무료로 시작하기</a>
-        </section>
+      </section>
 
-        <footer className="footer">
-          <div>
+      <footer className="footer">
+        <div>
             <div className="logo">Cite<span>Flow</span></div>
             <p>출처 기반 학술 글쓰기 코파일럿</p>
-          </div>
+        </div>
           <div className="footer-links">
             <a href="#features">기능</a>
             <a href="#process">서비스 과정</a>
             <a href="#pricing">요금제</a>
             <a href="/login">로그인</a>
             <a href="/signup">회원가입</a>
-          </div>
-        </footer>
+        </div>
+      </footer>
       </main>
 
       <style jsx>{`
