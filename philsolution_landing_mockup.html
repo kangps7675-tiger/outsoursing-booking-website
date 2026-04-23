@@ -232,45 +232,62 @@
 <section class="pricing" id="pricing">
   <div class="section-header">
     <div class="section-label">Pricing</div>
-    <h2 data-type-scroll>프로젝트 규모별 요금제</h2>
-    <p data-type-scroll>랜딩페이지부터 예약 시스템, SaaS까지 단계별로 선택할 수 있습니다</p>
+    <h2 data-type-scroll>프로젝트 규모별 티어 요금제</h2>
+    <p data-type-scroll>MVP부터 SaaS 확장까지 목표와 예산에 맞춰 선택할 수 있습니다</p>
   </div>
   <div class="pricing-grid">
     <div class="price-card">
-      <div class="price-plan">Starter</div>
+      <div class="price-plan">MVP</div>
       <div class="price-amount">150만~</div>
-      <div class="price-note">랜딩페이지 / 소개사이트</div>
+      <div class="price-note">기간: 2주</div>
       <ul class="price-features">
-        <li>기획 미팅 1회 + 요구사항 정리</li>
-        <li>반응형 페이지 1~3개</li>
-        <li>기본 문의 폼 연동</li>
-        <li>SEO 기본 설정</li>
+        <li>요구사항 미팅 1회</li>
+        <li>기획서 작성 (화면 흐름도)</li>
+        <li>프론트엔드 구현 (반응형)</li>
+        <li>백엔드 API 기본 구현</li>
+        <li>DB 설계 및 연결</li>
+        <li>기본 CRUD 기능</li>
+        <li>Vercel/Supabase 배포</li>
+        <li>도메인 연결</li>
         <li>1개월 무상 유지보수</li>
+      </ul>
+      <ul class="price-features">
+        <li><strong>해주지 않는 것:</strong></li>
+        <li>결제 연동</li>
+        <li>회원가입/로그인</li>
+        <li>관리자 페이지</li>
       </ul>
       <button class="price-btn outline" onclick="openConsultForm()">상담 신청</button>
     </div>
     <div class="price-card featured">
-      <div class="price-plan">Standard</div>
+      <div class="price-plan">PRODUCT</div>
       <div class="price-amount">300만~</div>
-      <div class="price-note">쇼핑몰 / 예약 시스템</div>
+      <div class="price-note">기간: 4주</div>
       <ul class="price-features">
-        <li>사용자/관리자 페이지 구성</li>
-        <li>예약/결제/알림 기능 연동</li>
-        <li>대시보드 및 운영 자동화</li>
-        <li>분석 도구 연동</li>
+        <li>MVP 전부 포함</li>
+        <li>회원가입/로그인/소셜로그인</li>
+        <li>결제 연동 (포트원)</li>
+        <li>관리자 대시보드</li>
+        <li>알림 기능 (이메일/SMS)</li>
+        <li>예약/스케줄 시스템</li>
+        <li>기본 통계/분석 화면</li>
         <li>3개월 무상 유지보수</li>
       </ul>
       <button class="price-btn solid" onclick="openConsultForm()">상담 신청</button>
     </div>
     <div class="price-card">
-      <div class="price-plan">Enterprise</div>
+      <div class="price-plan">SCALE</div>
       <div class="price-amount">600만~</div>
-      <div class="price-note">SaaS / ERP / AI 통합</div>
+      <div class="price-note">기간: 8주~</div>
       <ul class="price-features">
-        <li>복잡한 비즈니스 로직 구현</li>
-        <li>외부 API/사내 시스템 연동</li>
-        <li>권한/보안/감사 로그 설계</li>
+        <li>PRODUCT 전부 포함</li>
+        <li>멀티테넌트 구조 (SaaS)</li>
+        <li>외부 API 연동 (카카오/네이버 등)</li>
+        <li>AI 기능 통합 (챗봇/자동화)</li>
+        <li>권한/역할 관리 시스템</li>
+        <li>보안/감사 로그</li>
         <li>고성능 인프라 최적화</li>
+        <li>CI/CD 파이프라인</li>
         <li>6개월 무상 유지보수</li>
       </ul>
       <button class="price-btn outline" onclick="openConsultForm()">상담 신청</button>
